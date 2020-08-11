@@ -1,7 +1,9 @@
 package model
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
+	"fmt"
+
+	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -50,7 +52,7 @@ func getServiceAccountImagePullSecrets(cr *v1alpha1.Grafana, existing []v1.Local
 func GrafanaServiceAccount(cr *v1alpha1.Grafana) *v1.ServiceAccount {
 	return &v1.ServiceAccount{
 		ObjectMeta: v12.ObjectMeta{
-			Name:        GrafanaServiceAccountName,
+			Name:        getGrafanaServiceAccountName(cr),
 			Namespace:   cr.Namespace,
 			Labels:      getServiceAccountLabels(cr),
 			Annotations: getServiceAccountAnnotations(cr, nil),
@@ -62,7 +64,7 @@ func GrafanaServiceAccount(cr *v1alpha1.Grafana) *v1.ServiceAccount {
 func GrafanaServiceAccountSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaServiceAccountName,
+		Name:      getGrafanaServiceAccountName(cr),
 	}
 }
 
@@ -72,4 +74,8 @@ func GrafanaServiceAccountReconciled(cr *v1alpha1.Grafana, currentState *v1.Serv
 	reconciled.Annotations = getServiceAccountAnnotations(cr, currentState.Annotations)
 	reconciled.ImagePullSecrets = getServiceAccountImagePullSecrets(cr, currentState.ImagePullSecrets)
 	return reconciled
+}
+
+func getGrafanaServiceAccountName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaServiceAccountName, cr.Name)
 }

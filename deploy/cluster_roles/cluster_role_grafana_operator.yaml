@@ -4,7 +4,7 @@ metadata:
   name: grafana-operator
 rules:
   - apiGroups:
-      - integreatly.org
+      - monitor.kun
     resources:
       - grafanadashboards
       - grafanadashboards/status

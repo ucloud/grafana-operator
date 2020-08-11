@@ -8,7 +8,7 @@ metadata:
     rbac.authorization.k8s.io/aggregate-to-edit: "true" 
 rules:
 - apiGroups:
-  - "integreatly.org"
+  - "monitor.kun"
   resources:
   - grafanas
   - grafanas/status

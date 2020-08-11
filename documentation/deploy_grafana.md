@@ -246,21 +246,10 @@ spec:
 ```
 ## Jsonnet library discovery
 
+Jsonnet specific configuration options.
+
 ```yaml
 spec:
   jsonnet:
     libraryLabelSelector: <LabelSelector>   # Selector to discover config maps containing jsonnet libraries
-```
-
-## Compatibility with older dashboard formats
-
-This section contains flag that allow the operator to modify older dashboards in a way that allow importing to newer Grafana versions.
-
-NOTE: (*deprecated*) should no longer be used as of v3.0.2.  
-
-```yaml
-spec:
-  compat:
-    fixAnnotations: <Boolean>   # Allows importing dashboards that specify annotation tags as arrays instead of strings.
-    fixHeights: <Boolean>       # Allows importing dashboards that have a height property encoded as number
 ```

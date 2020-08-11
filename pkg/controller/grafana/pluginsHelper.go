@@ -3,10 +3,11 @@ package grafana
 import (
 	"crypto/tls"
 	"fmt"
-	grafanav1alpha1 "github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
 	"net/http"
 	"strings"
+
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/v3/pkg/controller/config"
 )
 
 type PluginsHelperImpl struct {

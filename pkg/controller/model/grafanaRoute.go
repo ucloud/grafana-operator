@@ -1,8 +1,10 @@
 package model
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
+	"fmt"
+
 	v1 "github.com/openshift/api/route/v1"
+	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -73,7 +75,7 @@ func getRouteSpec(cr *v1alpha1.Grafana) v1.RouteSpec {
 		Path: GetPath(cr),
 		To: v1.RouteTargetReference{
 			Kind: "Service",
-			Name: GrafanaServiceName,
+			Name: getGrafanaServiceName(cr),
 		},
 		AlternateBackends: nil,
 		Port: &v1.RoutePort{
@@ -89,7 +91,7 @@ func getRouteSpec(cr *v1alpha1.Grafana) v1.RouteSpec {
 func GrafanaRoute(cr *v1alpha1.Grafana) *v1.Route {
 	return &v1.Route{
 		ObjectMeta: v12.ObjectMeta{
-			Name:        GrafanaRouteName,
+			Name:        getGrafanaRouteName(cr),
 			Namespace:   cr.Namespace,
 			Labels:      GetIngressLabels(cr),
 			Annotations: GetIngressAnnotations(cr, nil),
@@ -101,7 +103,7 @@ func GrafanaRoute(cr *v1alpha1.Grafana) *v1.Route {
 func GrafanaRouteSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaRouteName,
+		Name:      getGrafanaRouteName(cr),
 	}
 }
 
@@ -111,4 +113,8 @@ func GrafanaRouteReconciled(cr *v1alpha1.Grafana, currentState *v1.Route) *v1.Ro
 	reconciled.Annotations = GetIngressAnnotations(cr, currentState.Annotations)
 	reconciled.Spec = getRouteSpec(cr)
 	return reconciled
+}
+
+func getGrafanaRouteName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaRouteName, cr.Name)
 }

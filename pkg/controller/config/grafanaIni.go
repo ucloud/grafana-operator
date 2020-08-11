@@ -1,12 +1,13 @@
 package config
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"fmt"
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
 )
 
 type GrafanaIni struct {
@@ -405,7 +406,7 @@ func (i *GrafanaIni) Write() (string, string) {
 		sb.WriteByte('\n')
 	}
 
-	hash := md5.New()
+	hash := sha256.New()
 	io.WriteString(hash, sb.String())
 
 	return sb.String(), fmt.Sprintf("%x", hash.Sum(nil))

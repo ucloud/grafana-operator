@@ -3,6 +3,8 @@ package model
 import (
 	"crypto/rand"
 	"encoding/base64"
+
+	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
 )
 
 func generateRandomBytes(n int) []byte {
@@ -28,4 +30,14 @@ func MergeAnnotations(requested map[string]string, existing map[string]string) m
 		existing[k] = v
 	}
 	return existing
+}
+
+func getLabels(cr *v1alpha1.Grafana) map[string]string {
+	var labels = map[string]string{}
+	if cr.Spec.Deployment != nil && cr.Spec.Deployment.Labels != nil {
+		labels = cr.Spec.Deployment.Labels
+	}
+	labels["app"] = GrafanaPodLabel
+	labels["grafana"] = cr.Name
+	return labels
 }

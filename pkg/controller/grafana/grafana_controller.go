@@ -2,13 +2,8 @@ package grafana
 
 import (
 	"context"
-	stdErr "errors"
 	"fmt"
 
-	grafanav1alpha1 "github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/common"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/model"
 	routev1 "github.com/openshift/api/route/v1"
 	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -24,6 +19,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/v3/pkg/controller/common"
+	"github.com/ucloud/grafana-operator/v3/pkg/controller/config"
 )
 
 const ControllerName = "grafana-controller"
@@ -33,7 +32,7 @@ var log = logf.Log.WithName(ControllerName)
 
 // Add creates a new Grafana Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-func Add(mgr manager.Manager, autodetectChannel chan schema.GroupVersionKind, _ string) error {
+func Add(mgr manager.Manager, autodetectChannel chan schema.GroupVersionKind) error {
 	return add(mgr, newReconciler(mgr), autodetectChannel)
 }
 
@@ -144,10 +143,6 @@ func (r *ReconcileGrafana) Reconcile(request reconcile.Request) (reconcile.Resul
 			r.config.RemoveConfigItem(config.ConfigDashboardLabelSelector)
 			r.config.Cleanup(true)
 
-			common.ControllerEvents <- common.ControllerState{
-				GrafanaReady: false,
-			}
-
 			return reconcile.Result{}, nil
 		}
 		return reconcile.Result{}, err
@@ -197,125 +192,53 @@ func (r *ReconcileGrafana) manageError(cr *grafanav1alpha1.Grafana, issue error)
 		return reconcile.Result{}, err
 	}
 
-	r.config.InvalidateDashboards()
-
-	common.ControllerEvents <- common.ControllerState{
-		GrafanaReady: false,
-	}
-
 	return reconcile.Result{RequeueAfter: config.RequeueDelay}, nil
-}
-
-// Try to find a suitable url to grafana
-func (r *ReconcileGrafana) getGrafanaAdminUrl(cr *grafanav1alpha1.Grafana, state *common.ClusterState) (string, error) {
-	// If preferService is true, we skip the routes and try to access grafana
-	// by using the service.
-	preferService := false
-	if cr.Spec.Client != nil {
-		preferService = cr.Spec.Client.PreferService
-	}
-
-	// First try to use the route if it exists. Prefer the route because it also works
-	// when running the operator outside of the cluster
-	if state.GrafanaRoute != nil && !preferService {
-		return fmt.Sprintf("https://%v", state.GrafanaRoute.Spec.Host), nil
-	}
-
-	// Try the ingress first if on vanilla Kubernetes
-	if state.GrafanaIngress != nil && !preferService {
-		// If provided, use the hostname from the CR
-		if cr.Spec.Ingress != nil && cr.Spec.Ingress.Hostname != "" {
-			return fmt.Sprintf("https://%v", cr.Spec.Ingress.Hostname), nil
-		}
-
-		// Otherwise try to find something suitable, hostname or IP
-		for _, ingress := range state.GrafanaIngress.Status.LoadBalancer.Ingress {
-			if ingress.Hostname != "" {
-				return fmt.Sprintf("https://%v", ingress.Hostname), nil
-			}
-			return fmt.Sprintf("https://%v", ingress.IP), nil
-		}
-	}
-
-	var servicePort = int32(model.GetGrafanaPort(cr))
-
-	// Otherwise rely on the service
-	if state.GrafanaService != nil && state.GrafanaService.Spec.ClusterIP != "" {
-		return fmt.Sprintf("http://%v:%d", state.GrafanaService.Spec.ClusterIP,
-			servicePort), nil
-	} else if state.GrafanaService != nil {
-		return fmt.Sprintf("http://%v:%d", state.GrafanaService.Name,
-			servicePort), nil
-	}
-
-	return "", stdErr.New("failed to find admin url")
 }
 
 func (r *ReconcileGrafana) manageSuccess(cr *grafanav1alpha1.Grafana, state *common.ClusterState) (reconcile.Result, error) {
 	cr.Status.Phase = grafanav1alpha1.PhaseReconciling
 	cr.Status.Message = "success"
 
-	// Only update the status if the dashboard controller had a chance to sync the cluster
-	// dashboards first. Otherwise reuse the existing dashboard config from the CR.
-	if r.config.GetConfigBool(config.ConfigGrafanaDashboardsSynced, false) {
-		cr.Status.InstalledDashboards = r.config.Dashboards
-	} else {
-		if r.config.Dashboards == nil {
-			r.config.SetDashboards(make(map[string][]*grafanav1alpha1.GrafanaDashboardRef))
-		}
-	}
-
-	if state.AdminSecret == nil || state.AdminSecret.Data == nil {
-		return r.manageError(cr, stdErr.New("admin secret not found or invalid"))
-	}
+	r.updateStatus(cr)
 
 	err := r.client.Status().Update(r.context, cr)
 	if err != nil {
 		return r.manageError(cr, err)
 	}
 
-	// Make the Grafana API URL available to the dashboard controller
-	url, err := r.getGrafanaAdminUrl(cr, state)
-	if err != nil {
-		return r.manageError(cr, err)
-	}
-
-	// Try to fix annotations on older dashboards?
-	fixAnnotations := false
-	if cr.Spec.Compat != nil && cr.Spec.Compat.FixAnnotations {
-		fixAnnotations = true
-	}
-
-	// Try to fix heights that are in the wrong format?
-	fixHeights := false
-	if cr.Spec.Compat != nil && cr.Spec.Compat.FixHeights {
-		fixHeights = true
-	}
-
-	// Publish controller state
-	controllerState := common.ControllerState{
-		DashboardSelectors:         cr.Spec.DashboardLabelSelector,
-		DashboardNamespaceSelector: cr.Spec.DashboardNamespaceSelector,
-		AdminUsername:              string(state.AdminSecret.Data[model.GrafanaAdminUserEnvVar]),
-		AdminPassword:              string(state.AdminSecret.Data[model.GrafanaAdminPasswordEnvVar]),
-		AdminUrl:                   url,
-		GrafanaReady:               true,
-		ClientTimeout:              DefaultClientTimeoutSeconds,
-		FixAnnotations:             fixAnnotations,
-		FixHeights:                 fixHeights,
-	}
-
-	if cr.Spec.Client != nil && cr.Spec.Client.TimeoutSeconds != nil {
-		seconds := DefaultClientTimeoutSeconds
-		if seconds < 0 {
-			seconds = DefaultClientTimeoutSeconds
-		}
-		controllerState.ClientTimeout = seconds
-	}
-
-	common.ControllerEvents <- controllerState
-
 	log.Info("desired cluster state met")
 
 	return reconcile.Result{RequeueAfter: config.RequeueDelay}, nil
+}
+
+func (r *ReconcileGrafana) updateStatus(cr *grafanav1alpha1.Grafana) error {
+	var installedDashboards []*grafanav1alpha1.GrafanaDashboardRef
+	dashboards := &grafanav1alpha1.GrafanaDashboardList{}
+	r.client.List(r.context, dashboards, client.InNamespace(cr.Namespace))
+	for _, dashboard := range dashboards.Items {
+		if match, err := common.MatchesSelectors(dashboard.Labels, cr.Spec.DashboardLabelSelector); err != nil {
+			return err
+		} else if match {
+			installedDashboards = append(installedDashboards, &grafanav1alpha1.GrafanaDashboardRef{
+				Name: dashboard.Name,
+			})
+		}
+	}
+
+	var installedDataSources []*grafanav1alpha1.GrafanaDatasourceRef
+	dataSources := &grafanav1alpha1.GrafanaDataSourceList{}
+	r.client.List(r.context, dataSources, client.InNamespace(cr.Namespace))
+	for _, dataSource := range dataSources.Items {
+		if match, err := common.MatchesSelectors(dataSource.Labels, cr.Spec.DatasourceLabelSelector); err != nil {
+			return err
+		} else if match {
+			installedDataSources = append(installedDataSources, &grafanav1alpha1.GrafanaDatasourceRef{
+				Name: dataSource.Name,
+			})
+		}
+	}
+
+	cr.Status.InstalledDashboards = installedDashboards
+	cr.Status.InstalledDatasources = installedDataSources
+	return nil
 }

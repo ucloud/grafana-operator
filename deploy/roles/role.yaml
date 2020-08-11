@@ -78,7 +78,7 @@ rules:
       - deletecollection
       - watch
   - apiGroups:
-      - integreatly.org
+      - monitor.kun
     resources:
       - grafanas
       - grafanas/status
