@@ -1,4 +1,4 @@
-ORG?=integreatly
+ORG?=ucloud
 NAMESPACE=grafana
 PROJECT=grafana-operator
 REG?=quay.io

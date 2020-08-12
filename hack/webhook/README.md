@@ -17,7 +17,7 @@ In addition, the `MutatingAdmissionWebhook` and `ValidatingAdmissionWebhook` adm
 
 1. Create a signed cert/key pair and store it in a Kubernetes `secret` that will be consumed by operator deployment
 ```
-./create-signed-cert.sh --service grafana-admission-webhook --secret grafana-webhook-cert --namespace default
+./create-signed-cert.sh --service grafana-admission-webhook --secret grafana-webhook-cert --namespace grafana
 ```
 
 2. Patch the `ValidatingWebhookConfiguration` by set `caBundle` with correct value from Kubernetes cluster

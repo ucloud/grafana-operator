@@ -18,21 +18,17 @@ The following properties are accepted in the `spec`:
 
 ## Creating a new dashboard
 
-By default, the operator only watches for dashboards in it's own namespace. To watch for dashboards in other namespaces, the `--scan-all` flag must be passed.
+The operator import dashboards for Grafana instance from the Grafana's same namespaces.
 
-To create a dashboard in the `grafana` namespace run:
+To create a dashboard in the `Grafana instance` namespace run:
 
 ```sh
-$ kubectl create -f deploy/examples/dashboards/SimpleDashboard.yaml -n grafana
+$ kubectl create -f deploy/examples/dashboards/SimpleDashboard.yaml -n namespace_where_has_Grafana
 ```
 
 ## Dashboard UIDs
 
 Grafana allows users to define the UIDs of dashboards. If an uid is present on a dashbaord, the operator will use it and not assign a generated one. This is often used to guarantee predictable dashboard URLs for interlinking.
-
-## Dashboard error handling
-
-If the dashboard contains invalid JSON a message with the parser error will be added to the status field of the dashboard resource.
 
 ## Plugins
 
@@ -81,15 +77,6 @@ dashboardLabelSelector:
   - matchExpressions:
       - {key: group, operator: In, values: [grafana]}          
 ```
-
-## Discovering dashboards in other namespaces
-
-The operator can discover dashboards in other namespaces if either the `--scan-all` flag is set or a list of watch namespaces is provided using the `--namespaces` flag. However this requires cluster wide permissions to the `GrafanaDashboard` custom resource. Create the permissions with:
-```sh
-$ oc create -f deploy/cluster_roles
-```
-
-*NOTE*: when installing the operator from [operatorhub](https://operatorhub.io/) it will only have permissions to the namespace it's installed in. To discover dashboards in other namespaces you need to apply the cluster roles after installing the operator and add the `--scan-all` flag to the operator container.
 
 ## Datasource inputs
 

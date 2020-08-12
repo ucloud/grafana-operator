@@ -8,7 +8,7 @@ webhooks:
     clientConfig:
       service:
         name: grafana-admission-webhook
-        namespace: default
+        namespace: grafana
         path: /validate-monitor-kun-v1alpha1-grafanadatasource
       caBundle: ${CA_BUNDLE}
     rules:
@@ -25,7 +25,7 @@ webhooks:
     clientConfig:
       service:
         name: grafana-admission-webhook
-        namespace: default
+        namespace: grafana
         path: /validate-monitor-kun-v1alpha1-grafanadashboard
       caBundle: ${CA_BUNDLE}
     rules:

@@ -70,4 +70,7 @@ spec:
       serviceaccounts.openshift.io/oauth-redirectreference.primary: '{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana-route"}}'
   dashboardLabelSelector:
     - matchExpressions:
-        - { key: "app", operator: In, values: ['grafana'] }
+        - { key: "app", operator: In, values: ["grafana"] }
+  datasourceLabelSelector:
+    - matchExpressions:
+        - {key: "app", operator: In, values: ["grafana"]}

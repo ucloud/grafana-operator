@@ -7,8 +7,6 @@ spec:
   selector:
     matchLabels:
       name: grafana-operator
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
@@ -18,9 +16,6 @@ spec:
       containers:
         - name: grafana-operator
           image: quay.io/ucloud/grafana-operator:latest
-          ports:
-            - containerPort: 60000
-              name: metrics
           command:
             - grafana-operator
           imagePullPolicy: Always
@@ -28,9 +23,7 @@ spec:
             - name: TEMPLATE_PATH
               value: /usr/local/bin/templates
             - name: WATCH_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
+              value: ""
             - name: POD_NAME
               valueFrom:
                 fieldRef:
