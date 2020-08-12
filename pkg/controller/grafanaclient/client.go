@@ -85,6 +85,7 @@ func NewGrafanaClient(url, user, password string, timeout time.Duration) Grafana
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
+		DisableKeepAlives: true,
 	}
 
 	client := &http.Client{

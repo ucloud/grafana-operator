@@ -145,18 +145,7 @@ func main() {
 	}
 
 	if os.Getenv("ENABLE_WEBHOOKS") == "true" {
-		log.Info("Starting the WebHook.")
-		ws := mgr.GetWebhookServer()
-		ws.CertDir = "/etc/webhook/certs"
-		ws.Port = 7443
-		if err = (&grafanav1alpha1.GrafanaDashboard{}).SetupWebhookWithManager(mgr); err != nil {
-			log.Error(err, "unable to create webHook", "webHook", "GrafanaDashboard")
-			os.Exit(1)
-		}
-		if err = (&grafanav1alpha1.GrafanaDataSource{}).SetupWebhookWithManager(mgr); err != nil {
-			log.Error(err, "unable to create webHook", "webHook", "GrafanaDataSource")
-			os.Exit(1)
-		}
+		startWebHook(mgr)
 	}
 
 	log.Info("Starting the Cmd.")
@@ -168,3 +157,31 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+func startWebHook(mgr manager.Manager) {
+	log.Info("Starting the WebHook.")
+	ws := mgr.GetWebhookServer()
+	ws.CertDir = "/etc/webhook/certs"
+	ws.Port = 7443
+	if err := (&grafanav1alpha1.GrafanaDashboard{}).SetupWebhookWithManager(mgr); err != nil {
+		log.Error(err, "unable to create webHook", "webHook", "GrafanaDashboard")
+		os.Exit(1)
+	}
+	if err := (&grafanav1alpha1.GrafanaDataSource{}).SetupWebhookWithManager(mgr); err != nil {
+		log.Error(err, "unable to create webHook", "webHook", "GrafanaDataSource")
+		os.Exit(1)
+	}
+}
+
+//func serveProfiling() {
+//	log.Info("Starting the Profiling.")
+//	mux := mux.NewPathRecorderMux("grafana-operator")
+//	routes.Profiling{}.Install(mux)
+//	go wait.Until(func() {
+//		err := http.ListenAndServe("[::]:10269", mux)
+//		if err != nil {
+//			log.Error(err, "starting metrics server failed")
+//			os.Exit(1)
+//		}
+//	}, 5*time.Second, wait.NeverStop)
+//}
