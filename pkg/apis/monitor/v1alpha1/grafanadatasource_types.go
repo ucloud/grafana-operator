@@ -1,9 +1,12 @@
 package v1alpha1
 
 import (
+	"crypto/sha256"
 	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"io"
 	"strings"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const GrafanaDataSourceKind = "GrafanaDataSource"
@@ -160,4 +163,10 @@ func init() {
 // return a unique per namespaec key of the datasource
 func (in *GrafanaDataSource) Filename() string {
 	return fmt.Sprintf("%v_%v.yaml", in.Namespace, strings.ToLower(in.Name))
+}
+
+func (in *GrafanaDataSource) Hash() string {
+	hash := sha256.New()
+	io.WriteString(hash, fmt.Sprintf("%v", in.Spec.Datasources))
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }

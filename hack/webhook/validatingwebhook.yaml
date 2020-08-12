@@ -1,0 +1,39 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: grafana-validation-webhook
+webhooks:
+  - name: grafanadatasources.monitor.kun
+    failurePolicy: Ignore
+    clientConfig:
+      service:
+        name: grafana-admission-webhook
+        namespace: default
+        path: /validate-monitor-kun-v1alpha1-grafanadatasource
+      caBundle: ${CA_BUNDLE}
+    rules:
+      - operations:
+          - UPDATE
+        apiGroups:
+          - monitor.kun
+        apiVersions:
+          - v1alpha1
+        resources:
+          - grafanadatasources
+  - name: grafanadashboards.monitor.kun
+    failurePolicy: Ignore
+    clientConfig:
+      service:
+        name: grafana-admission-webhook
+        namespace: default
+        path: /validate-monitor-kun-v1alpha1-grafanadashboard
+      caBundle: ${CA_BUNDLE}
+    rules:
+      - operations:
+          - UPDATE
+        apiGroups:
+          - monitor.kun
+        apiVersions:
+          - v1alpha1
+        resources:
+          - grafanadashboards

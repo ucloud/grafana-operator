@@ -175,6 +175,7 @@ func (r *ReconcileGrafanaDataSource) manageSuccess(datasource *grafanav1alpha1.G
 
 	err := r.client.Status().Update(r.context, datasource)
 	if err != nil {
+		log.Error(err, "error updating datasource status")
 		r.recorder.Event(datasource, "Warning", "UpdateError", err.Error())
 	}
 }

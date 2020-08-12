@@ -21,6 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 
 	"github.com/ucloud/grafana-operator/v3/pkg/apis"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
 	"github.com/ucloud/grafana-operator/v3/pkg/controller"
 	"github.com/ucloud/grafana-operator/v3/pkg/controller/common"
 	config2 "github.com/ucloud/grafana-operator/v3/pkg/controller/config"
@@ -141,6 +142,21 @@ func main() {
 	_, err = metrics.CreateMetricsService(context.TODO(), cfg, servicePorts)
 	if err != nil {
 		log.Error(err, "error starting metrics service")
+	}
+
+	if os.Getenv("ENABLE_WEBHOOKS") == "true" {
+		log.Info("Starting the WebHook.")
+		ws := mgr.GetWebhookServer()
+		ws.CertDir = "/etc/webhook/certs"
+		ws.Port = 7443
+		if err = (&grafanav1alpha1.GrafanaDashboard{}).SetupWebhookWithManager(mgr); err != nil {
+			log.Error(err, "unable to create webHook", "webHook", "GrafanaDashboard")
+			os.Exit(1)
+		}
+		if err = (&grafanav1alpha1.GrafanaDataSource{}).SetupWebhookWithManager(mgr); err != nil {
+			log.Error(err, "unable to create webHook", "webHook", "GrafanaDataSource")
+			os.Exit(1)
+		}
 	}
 
 	log.Info("Starting the Cmd.")
