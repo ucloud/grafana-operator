@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/config"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
 )
 
 type PluginsHelperImpl struct {

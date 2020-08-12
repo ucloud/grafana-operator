@@ -7,7 +7,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
 )
 
 func getPVCLabels(cr *v1alpha1.Grafana) map[string]string {

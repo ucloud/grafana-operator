@@ -2,10 +2,10 @@ package grafanadatasource
 
 import (
 	"github.com/go-logr/logr"
-	grafanaClient "github.com/ucloud/grafana-operator/v3/pkg/controller/grafanaclient"
+	grafanaClient "github.com/ucloud/grafana-operator/pkg/controller/grafanaclient"
 
-	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/common"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/common"
 )
 
 func (r *ReconcileGrafanaDataSource) reconcile(reqLogger logr.Logger, cr *grafanav1alpha1.GrafanaDataSource) error {

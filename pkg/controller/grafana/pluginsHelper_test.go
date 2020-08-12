@@ -3,7 +3,7 @@ package grafana
 import (
 	"testing"
 
-	testing2 "github.com/ucloud/grafana-operator/v3/pkg/controller/testing"
+	testing2 "github.com/ucloud/grafana-operator/pkg/controller/testing"
 )
 
 func TestPluginsList(t *testing.T) {

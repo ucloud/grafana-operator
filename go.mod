@@ -1,4 +1,4 @@
-module github.com/ucloud/grafana-operator/v3
+module github.com/ucloud/grafana-operator
 
 go 1.13
 

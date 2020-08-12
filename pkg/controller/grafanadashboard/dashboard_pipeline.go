@@ -13,8 +13,8 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/go-jsonnet"
-	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/config"
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"

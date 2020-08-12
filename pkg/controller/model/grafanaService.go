@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"

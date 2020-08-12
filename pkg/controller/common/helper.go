@@ -14,9 +14,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	grafanaClient "github.com/ucloud/grafana-operator/v3/pkg/controller/grafanaclient"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/model"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	grafanaClient "github.com/ucloud/grafana-operator/pkg/controller/grafanaclient"
+	"github.com/ucloud/grafana-operator/pkg/controller/model"
 )
 
 const DefaultClientTimeout = 5 * time.Second

@@ -20,9 +20,9 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/common"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/config"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/common"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
 )
 
 const ControllerName = "grafana-controller"

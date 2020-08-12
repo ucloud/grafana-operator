@@ -20,12 +20,12 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 
-	"github.com/ucloud/grafana-operator/v3/pkg/apis"
-	grafanav1alpha1 "github.com/ucloud/grafana-operator/v3/pkg/apis/monitor/v1alpha1"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller"
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/common"
-	config2 "github.com/ucloud/grafana-operator/v3/pkg/controller/config"
-	"github.com/ucloud/grafana-operator/v3/version"
+	"github.com/ucloud/grafana-operator/pkg/apis"
+	grafanav1alpha1 "github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller"
+	"github.com/ucloud/grafana-operator/pkg/controller/common"
+	config2 "github.com/ucloud/grafana-operator/pkg/controller/config"
+	"github.com/ucloud/grafana-operator/version"
 )
 
 var log = logf.Log.WithName("cmd")

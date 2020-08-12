@@ -10,7 +10,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	config2 "github.com/ucloud/grafana-operator/v3/pkg/controller/config"
+	config2 "github.com/ucloud/grafana-operator/pkg/controller/config"
 )
 
 // Route kind is not provided by the openshift api

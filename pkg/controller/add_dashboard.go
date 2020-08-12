@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/ucloud/grafana-operator/v3/pkg/controller/grafanadashboard"
+	"github.com/ucloud/grafana-operator/pkg/controller/grafanadashboard"
 )
 
 func init() {
