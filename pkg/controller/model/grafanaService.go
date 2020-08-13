@@ -1,12 +1,14 @@
 package model
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
+	"fmt"
+	"strconv"
+
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
 )
 
 func getServiceLabels(cr *v1alpha1.Grafana) map[string]string {
@@ -97,16 +99,14 @@ func getServicePorts(cr *v1alpha1.Grafana, currentState *v1.Service) []v1.Servic
 func GrafanaService(cr *v1alpha1.Grafana) *v1.Service {
 	return &v1.Service{
 		ObjectMeta: v12.ObjectMeta{
-			Name:        GrafanaServiceName,
+			Name:        getGrafanaServiceName(cr),
 			Namespace:   cr.Namespace,
 			Labels:      getServiceLabels(cr),
 			Annotations: getServiceAnnotations(cr, nil),
 		},
 		Spec: v1.ServiceSpec{
-			Ports: getServicePorts(cr, nil),
-			Selector: map[string]string{
-				"app": GrafanaPodLabel,
-			},
+			Ports:     getServicePorts(cr, nil),
+			Selector:  getLabels(cr),
 			ClusterIP: "",
 			Type:      getServiceType(cr),
 		},
@@ -125,6 +125,10 @@ func GrafanaServiceReconciled(cr *v1alpha1.Grafana, currentState *v1.Service) *v
 func GrafanaServiceSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaServiceName,
+		Name:      getGrafanaServiceName(cr),
 	}
+}
+
+func getGrafanaServiceName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaServiceName, cr.Name)
 }

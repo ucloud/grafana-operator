@@ -1,8 +1,10 @@
 package model
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
+	"fmt"
+
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -14,7 +16,7 @@ func GrafanaConfig(cr *v1alpha1.Grafana) (*v1.ConfigMap, error) {
 
 	configMap := &v1.ConfigMap{}
 	configMap.ObjectMeta = v12.ObjectMeta{
-		Name:      GrafanaConfigName,
+		Name:      getGrafanaConfigName(cr),
 		Namespace: cr.Namespace,
 	}
 
@@ -25,7 +27,7 @@ func GrafanaConfig(cr *v1alpha1.Grafana) (*v1.ConfigMap, error) {
 	}
 
 	configMap.Data = map[string]string{}
-	configMap.Data[GrafanaConfigFileName] = config
+	configMap.Data[grafanaConfigFileName] = config
 	return configMap, nil
 }
 
@@ -39,13 +41,17 @@ func GrafanaConfigReconciled(cr *v1alpha1.Grafana, currentState *v1.ConfigMap) (
 		LastConfigAnnotation: hash,
 	}
 
-	reconciled.Data[GrafanaConfigFileName] = config
+	reconciled.Data[grafanaConfigFileName] = config
 	return reconciled, nil
 }
 
 func GrafanaConfigSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaConfigName,
+		Name:      getGrafanaConfigName(cr),
 	}
+}
+
+func getGrafanaConfigName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaConfigName, cr.Name)
 }

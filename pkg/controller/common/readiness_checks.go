@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+
 	v1 "github.com/openshift/api/route/v1"
 	v12 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"

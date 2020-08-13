@@ -14,22 +14,21 @@ The following properties are accepted in the `spec`:
 * *url*: Url address to download a json or jsonnet string with the dashboard contents. This will take priority over the json field in case the download is successful.
 * *plugins*: A list of plugins required by the dashboard. They will be installed by the operator if not already present.
 * *datasources*: A list of datasources to be used as inputs. See [datasource inputs](#datasource-inputs).
+* *configMapRef*: Import dashboards from config maps. See [config map refreences](#config-map-references).
 
 ## Creating a new dashboard
 
-By default the operator only watches for dashboards in it's own namespace. To watch for dashboards in other namespaces, the `--scan-all` flag must be passed.
+The operator import dashboards for Grafana instance from the Grafana's same namespaces.
 
-To create a dashboard in the `grafana` namespace run:
+To create a dashboard in the `Grafana instance` namespace run:
 
 ```sh
-$ kubectl create -f deploy/examples/dashboards/SimpleDashboard.yaml -n grafana
+$ kubectl create -f deploy/examples/dashboards/SimpleDashboard.yaml -n namespace_where_has_Grafana
 ```
 
-*NOTE*: it can take up to a minute until new dashboards are discovered by Grafana.
+## Dashboard UIDs
 
-## Dashboard error handling
-
-If the dashboard contains invalid JSON a message with the parser error will be added to the status field of the dashboard resource.
+Grafana allows users to define the UIDs of dashboards. If an uid is present on a dashbaord, the operator will use it and not assign a generated one. This is often used to guarantee predictable dashboard URLs for interlinking.
 
 ## Plugins
 
@@ -79,15 +78,6 @@ dashboardLabelSelector:
       - {key: group, operator: In, values: [grafana]}          
 ```
 
-## Discovering dashboards in other namespaces
-
-The operator can discover dashboards in other namespaces if either the `--scan-all` flag is set or a list of watch namespaces is provided using the `--namespaces` flag. However this requires cluster wide permissions to the `GrafanaDashboard` custom resource. Create the permissions with:
-```sh
-$ oc create -f deploy/cluster_roles
-```
-
-*NOTE*: when installing the operator from [operatorhub](https://operatorhub.io/) it will only have permissions to the namespace it's installed in. To discover dashboards in other namespaces you need to apply the cluster roles after installing the operator and add the `--scan-all` flag to the operator container.
-
 ## Datasource inputs
 
 Dashboards may rely on certain datasources to be present. When a dashboard is exported, Grafana will populate an `__inputs` array with required datasources. When importing such a dashboard, the required datasources have to be mapped to datasources existing in the Grafana instance. For example, consider the following dashboard:
@@ -120,4 +110,18 @@ spec:
 ...
 ```
 
-This will allow the operator to replace all occurrences of the datasource variable `DS_PROMETHEUS` with the actual name of the datasource. An example for this is `dashboards/KeycloakDashboard.yaml`. 
+This will allow the operator to replace all occurrences of the datasource variable `DS_PROMETHEUS` with the actual name of the datasource. An example for this is `dashboards/KeycloakDashboard.yaml`.
+
+## Config map references
+
+The json contents of a dashboard can be defined in a config map with the dashboard CR pointing to that config map.
+
+```yaml
+...
+spec:
+  name: grafana-dashboard-from-config-map.json
+  configMapRef:
+    name: <config map name>
+    key: <key of the entry containing the json contents>
+...
+```

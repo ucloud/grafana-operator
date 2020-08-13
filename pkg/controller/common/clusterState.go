@@ -3,9 +3,6 @@ package common
 import (
 	"context"
 
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/model"
 	v12 "github.com/openshift/api/route/v1"
 	v13 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -13,6 +10,10 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
+	"github.com/ucloud/grafana-operator/pkg/controller/model"
 )
 
 type ClusterState struct {
@@ -23,7 +24,6 @@ type ClusterState struct {
 	GrafanaRoute                     *v12.Route
 	GrafanaIngress                   *v1beta1.Ingress
 	GrafanaDeployment                *v13.Deployment
-	GrafanaDataSourceConfig          *v1.ConfigMap
 	AdminSecret                      *v1.Secret
 }
 
@@ -53,11 +53,6 @@ func (i *ClusterState) Read(ctx context.Context, cr *v1alpha1.Grafana, client cl
 	}
 
 	err = i.readGrafanaConfig(ctx, cr, client)
-	if err != nil {
-		return err
-	}
-
-	err = i.readGrafanaDatasourceConfig(ctx, cr, client)
 	if err != nil {
 		return err
 	}
@@ -137,20 +132,6 @@ func (i *ClusterState) readGrafanaConfig(ctx context.Context, cr *v1alpha1.Grafa
 		return err
 	}
 	i.GrafanaConfig = currentState.DeepCopy()
-	return nil
-}
-
-func (i *ClusterState) readGrafanaDatasourceConfig(ctx context.Context, cr *v1alpha1.Grafana, client client.Client) error {
-	currentState := &v1.ConfigMap{}
-	selector := model.GrafanaDatasourceConfigSelector(cr)
-	err := client.Get(ctx, selector, currentState)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return nil
-		}
-		return err
-	}
-	i.GrafanaDataSourceConfig = currentState.DeepCopy()
 	return nil
 }
 

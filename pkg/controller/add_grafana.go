@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/grafana"
+	"github.com/ucloud/grafana-operator/pkg/controller/grafana"
 )
 
 func init() {

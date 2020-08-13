@@ -1,4 +1,4 @@
-apiVersion: integreatly.org/v1alpha1
+apiVersion: monitor.kun/v1alpha1
 kind: Grafana
 metadata:
   name: example-grafana
@@ -13,5 +13,8 @@ spec:
       enabled: true
       config_file: /etc/grafana-configmaps/ldap-config/ldap.toml
   dashboardLabelSelector:
+    - matchExpressions:
+        - {key: app, operator: In, values: [grafana]}
+  datasourceLabelSelector:
     - matchExpressions:
         - {key: app, operator: In, values: [grafana]}

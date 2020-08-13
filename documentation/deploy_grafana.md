@@ -63,13 +63,7 @@ $ kubectl create -f deploy/crds
 Create the operator roles:
 
 ```sh
-$ kubectl create -f deploy/roles -n grafana
-```
-
-If you want to scan for dashboards in other namespaces you also need the cluster roles:
-
-```sh
-$ kubectl create -f deploy/cluster_roles
+$ kubectl create -f deploy/clusterroles -n grafana
 ```
 
 To deploy the operator to that namespace you can use `deploy/operator.yaml`:
@@ -95,8 +89,6 @@ The operator accepts a number of flags that can be passed in the `args` section 
 * *--grafana-plugins-init-container-image*: overrides the Grafana Plugins Init Container image, defaults to `quay.io/integreatly/grafana_plugins_init`.
 * *--grafana-plugins-init-container-tag*: overrides the Grafana Plugins Init Container tag, defaults to `0.0.3`.
 * *--grafonnet-location*: overrides the location of the grafonnet library. Defaults to `/opt/grafonnet-lib`. Only useful when running the operator locally.
-* *--scan-all*: watch for dashboards in all namespaces. This requires the the operator service account to have cluster wide permissions to `get`, `list`, `update` and `watch` dashboards. See `deploy/cluster_roles`.
-* *--namespaces*: watch for dashboards in a list of namespaces. Mutually exclusive with `--scan-all`.
 
 See `deploy/operator.yaml` for an example.
 
@@ -109,6 +101,7 @@ Create a custom resource of type `Grafana`, or use the one in `deploy/examples/G
 The resource accepts the following properties in it's `spec`:
 
 * *dashboardLabelSelector*: A list of either `matchLabels` or `matchExpressions` to filter the dashboards before importing them.
+* *datasourceLabelSelector*: A list of either `matchLabels` or `matchExpressions` to filter the datasources before importing them.
 * *containers*: Extra containers to be added to the Grafana deployment. Can be used for example to add auth proxy side cars.
 * *secrets*: A list of secrets that are added as volumes to the deployment. Useful in combination with extra `containers` or when extra configuraton files are required.
 * *configMaps*: A list of config maps that are added as volumes to the deployment. Useful in combination with extra `containers` or when extra configuraton files are required.
@@ -119,7 +112,6 @@ The resource accepts the following properties in it's `spec`:
 * *deployment*: Allows configuring the deployment (see [here](#configuring-the-deployment)).
 * *resources*: Allows configuring the requests and limits for the Grafana pod (see [here](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core)).
 * *client*: Grafana client options (see [here](#configuring-grafana-api-access)).
-* *compat*: Compatibility options with older dashboard formats (see [here]()).
 * *jsonnet*: Label selector for jsonnet libraries (see [here](#jsonnet-library-discovery)).
 
 *NOTE*: by default no Ingress or Route is created. It can be enabled with `spec.ingress.enabled`.
@@ -246,21 +238,10 @@ spec:
 ```
 ## Jsonnet library discovery
 
+Jsonnet specific configuration options.
+
 ```yaml
 spec:
   jsonnet:
     libraryLabelSelector: <LabelSelector>   # Selector to discover config maps containing jsonnet libraries
-```
-
-## Compatibility with older dashboard formats
-
-This section contains flag that allow the operator to modify older dashboards in a way that allow importing to newer Grafana versions.
-
-NOTE: (*deprecated*) should no longer be used as of v3.0.2.  
-
-```yaml
-spec:
-  compat:
-    fixAnnotations: <Boolean>   # Allows importing dashboards that specify annotation tags as arrays instead of strings.
-    fixHeights: <Boolean>       # Allows importing dashboards that have a height property encoded as number
 ```

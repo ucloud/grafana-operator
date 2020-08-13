@@ -3,10 +3,10 @@ package grafana
 import (
 	"fmt"
 
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/common"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/config"
-	"github.com/integr8ly/grafana-operator/v3/pkg/controller/model"
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/controller/common"
+	"github.com/ucloud/grafana-operator/pkg/controller/config"
+	"github.com/ucloud/grafana-operator/pkg/controller/model"
 )
 
 type GrafanaReconciler struct {
@@ -37,7 +37,6 @@ func (i *GrafanaReconciler) Reconcile(state *common.ClusterState, cr *v1alpha1.G
 
 	desired = desired.AddAction(i.getGrafanaServiceAccountDesiredState(state, cr))
 	desired = desired.AddActions(i.getGrafanaConfigDesiredState(state, cr))
-	desired = desired.AddAction(i.getGrafanaDatasourceConfigDesiredState(state, cr))
 	desired = desired.AddAction(i.getGrafanaExternalAccessDesiredState(state, cr))
 
 	// Consolidate plugins
@@ -155,22 +154,6 @@ func (i *GrafanaReconciler) getGrafanaConfigDesiredState(state *common.ClusterSt
 	return actions
 }
 
-func (i *GrafanaReconciler) getGrafanaDatasourceConfigDesiredState(state *common.ClusterState, cr *v1alpha1.Grafana) common.ClusterAction {
-	// Only create the datasources configmap if it doesn't exist. Updates
-	// are handled by the datasources controller
-	if state.GrafanaDataSourceConfig == nil {
-		return common.GenericCreateAction{
-			Ref: model.GrafanaDatasourcesConfig(cr),
-			Msg: "create grafanadatasource config",
-		}
-	} else {
-		if state.GrafanaDataSourceConfig.Annotations != nil {
-			i.DsHash = state.GrafanaDataSourceConfig.Annotations[model.LastConfigAnnotation]
-		}
-	}
-	return nil
-}
-
 func (i *GrafanaReconciler) getGrafanaExternalAccessDesiredState(state *common.ClusterState, cr *v1alpha1.Grafana) common.ClusterAction {
 	cfg := config.GetControllerConfig()
 	isOpenshift := cfg.GetConfigBool(config.ConfigOpenshift, false)
@@ -268,11 +251,6 @@ func (i *GrafanaReconciler) getGrafanaPluginsDesiredState(cr *v1alpha1.Grafana) 
 
 		// Build the new list of plugins for the init container to consume
 		i.PluginsEnv = i.Plugins.BuildEnv(cr)
-
-		// Reset the list of known dashboards to force the dashboard controller
-		// to reimport them
-		cfg := config.GetControllerConfig()
-		cfg.InvalidateDashboards()
 
 		return common.LogAction{
 			Msg: fmt.Sprintf("plugins updated to %s", i.PluginsEnv),

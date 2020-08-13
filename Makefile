@@ -1,10 +1,10 @@
-ORG?=integreatly
+ORG?=ucloud
 NAMESPACE=grafana
 PROJECT=grafana-operator
 REG?=quay.io
 SHELL=/bin/bash
 TAG?=latest
-PKG=github.com/integr8ly/grafana-operator
+PKG=github.com/ucloud/grafana-operator
 COMPILE_TARGET=./tmp/_output/bin/$(PROJECT)
 
 .PHONY: setup/dep

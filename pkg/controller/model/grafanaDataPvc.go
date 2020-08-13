@@ -1,11 +1,13 @@
 package model
 
 import (
+	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
 )
 
 func getPVCLabels(cr *v1alpha1.Grafana) map[string]string {
@@ -38,7 +40,7 @@ func getPVCSpec(cr *v1alpha1.Grafana) corev1.PersistentVolumeClaimSpec {
 func GrafanaDataPVC(cr *v1alpha1.Grafana) *corev1.PersistentVolumeClaim {
 	return &corev1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        GrafanaDataStorageName,
+			Name:        getGrafanaDataStorageName(cr),
 			Namespace:   cr.Namespace,
 			Labels:      getPVCLabels(cr),
 			Annotations: getPVCAnnotations(cr, nil),
@@ -57,6 +59,10 @@ func GrafanaPVCReconciled(cr *v1alpha1.Grafana, currentState *corev1.PersistentV
 func GrafanaDataStorageSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaDataStorageName,
+		Name:      getGrafanaDataStorageName(cr),
 	}
+}
+
+func getGrafanaDataStorageName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaDataStorageName, cr.Name)
 }

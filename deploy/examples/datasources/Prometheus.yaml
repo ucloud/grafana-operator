@@ -1,17 +1,16 @@
-apiVersion: integreatly.org/v1alpha1
+apiVersion: monitor.kun/v1alpha1
 kind: GrafanaDataSource
 metadata:
   name: example-grafanadatasource
 spec:
-  name: middleware.yaml
   datasources:
-    - name: Prometheus
-      type: prometheus
-      access: proxy
-      url: http://prometheus-service:9090
-      isDefault: true
-      version: 1
-      editable: true
-      jsonData:
-        tlsSkipVerify: true
-        timeInterval: "5s"
+    name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus-service:9090
+    isDefault: true
+    version: 1
+    editable: true
+    jsonData:
+      tlsSkipVerify: true
+      timeInterval: "5s"

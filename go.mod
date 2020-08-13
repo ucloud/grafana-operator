@@ -1,27 +1,24 @@
-module github.com/integr8ly/grafana-operator/v3
+module github.com/ucloud/grafana-operator
 
 go 1.13
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-logr/logr v0.1.0
 	github.com/go-openapi/spec v0.19.4
 	github.com/google/go-jsonnet v0.16.0
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
-	github.com/operator-framework/operator-sdk v0.16.0
-	github.com/pkg/errors v0.8.1
-	github.com/prometheus/procfs v0.0.7 // indirect
-	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
+	github.com/operator-framework/operator-sdk v0.13.0
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/kube-openapi v0.0.0-20190918143330-0270cf2f1c1d
+	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
 // Pinned to kubernetes-1.16.2
 replace (
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+incompatible // Required by OLM
 	k8s.io/api => k8s.io/api v0.0.0-20191016110408-35e52d86657a
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20191016113550-5357c4baaf65
 	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8

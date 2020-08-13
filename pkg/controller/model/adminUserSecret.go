@@ -1,7 +1,9 @@
 package model
 
 import (
-	"github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
+	"fmt"
+
+	"github.com/ucloud/grafana-operator/pkg/apis/monitor/v1alpha1"
 	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,7 +41,7 @@ func getData(cr *v1alpha1.Grafana, current *v12.Secret) map[string][]byte {
 func AdminSecret(cr *v1alpha1.Grafana) *v12.Secret {
 	return &v12.Secret{
 		ObjectMeta: v1.ObjectMeta{
-			Name:      GrafanaAdminSecretName,
+			Name:      getGrafanaAdminSecretName(cr),
 			Namespace: cr.Namespace,
 		},
 		Data: getData(cr, nil),
@@ -56,6 +58,10 @@ func AdminSecretReconciled(cr *v1alpha1.Grafana, currentState *v12.Secret) *v12.
 func AdminSecretSelector(cr *v1alpha1.Grafana) client.ObjectKey {
 	return client.ObjectKey{
 		Namespace: cr.Namespace,
-		Name:      GrafanaAdminSecretName,
+		Name:      getGrafanaAdminSecretName(cr),
 	}
+}
+
+func getGrafanaAdminSecretName(cr *v1alpha1.Grafana) string {
+	return fmt.Sprintf("%s-%s", grafanaAdminSecretName, cr.Name)
 }

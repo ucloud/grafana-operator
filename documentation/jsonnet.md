@@ -7,7 +7,7 @@ The operator supports importing dashboards in [jsonnet](https://jsonnet.org/) fo
 As with `json`, Grafana Dashboard CRs have a `jsonnet` field:
 
  ```yaml
-apiVersion: integreatly.org/v1alpha1
+apiVersion: monitor.kun/v1alpha1
 kind: GrafanaDashboard
 metadata:
   name: grafonnet-dashboard
