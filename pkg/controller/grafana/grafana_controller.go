@@ -26,7 +26,6 @@ import (
 )
 
 const ControllerName = "grafana-controller"
-const DefaultClientTimeoutSeconds = 5
 
 var log = logf.Log.WithName(ControllerName)
 

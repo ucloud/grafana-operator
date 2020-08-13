@@ -15,24 +15,8 @@ func (r *ReconcileGrafanaDataSource) reconcile(reqLogger logr.Logger, cr *grafan
 		return err
 	}
 
-	// Returns true of a datasource if it is known
-	//find := func(d *grafanav1alpha1.GrafanaDataSource, refs []*grafanav1alpha1.GrafanaDatasourceRef) bool {
-	//	if refs == nil || d == nil {
-	//		return false
-	//	}
-	//	for _, ref := range refs {
-	//		if ref.Name == d.Name {
-	//			return true
-	//		}
-	//	}
-	//	return false
-	//}
-
 	for _, graf := range matchedGrafs {
 		reqLogger.V(3).Info("reconcile datasource for grafana", "grafanaName", graf.Name)
-		//if find(cr, graf.Status.InstalledDatasources) {
-		//	continue
-		//}
 		// Read current state
 		state := common.NewClusterState()
 		if err = state.Read(r.context, graf, r.client); err != nil {
