@@ -9,7 +9,7 @@ import (
 )
 
 func (r *ReconcileGrafanaDashboard) reconcile(reqLogger logr.Logger, cr *grafanav1alpha1.GrafanaDashboard) error {
-	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels)
+	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels, common.MatchByDashboard)
 	if err != nil {
 		reqLogger.Error(err, "matchGrafana failed.")
 		return err
@@ -80,7 +80,7 @@ func (r *ReconcileGrafanaDashboard) reconcile(reqLogger logr.Logger, cr *grafana
 }
 
 func (r *ReconcileGrafanaDashboard) reconcileDelete(reqLogger logr.Logger, cr *grafanav1alpha1.GrafanaDashboard) error {
-	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels)
+	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels, common.MatchByDashboard)
 	if err != nil {
 		reqLogger.Error(err, "matchGrafana failed.")
 		return err

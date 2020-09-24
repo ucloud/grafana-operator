@@ -9,14 +9,15 @@ import (
 )
 
 func (r *ReconcileGrafanaDataSource) reconcile(reqLogger logr.Logger, cr *grafanav1alpha1.GrafanaDataSource) error {
-	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels)
+	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels, common.MatchByDataSource)
 	if err != nil {
 		reqLogger.Error(err, "matchGrafana failed.")
 		return err
 	}
+	reqLogger.Info("matched grafana", "szie", len(matchedGrafs))
 
 	for _, graf := range matchedGrafs {
-		reqLogger.V(3).Info("reconcile datasource for grafana", "grafanaName", graf.Name)
+		reqLogger.Info("reconcile datasource for grafana", "grafanaName", graf.Name)
 		// Read current state
 		state := common.NewClusterState()
 		if err = state.Read(r.context, graf, r.client); err != nil {
@@ -32,6 +33,7 @@ func (r *ReconcileGrafanaDataSource) reconcile(reqLogger logr.Logger, cr *grafan
 		}
 
 		if _, err := client.GetDatasourceByName(cr.Spec.Datasources.Name); err != nil && err == grafanaClient.NotFoundError {
+			reqLogger.Info("create new datasource for grafana", "grafanaName", graf.Name, "dataSource", cr.Spec.Datasources.Name)
 			pipeline := NewDatasourcePipeline(cr)
 			processed, err := pipeline.ProcessDatasource()
 
@@ -66,7 +68,7 @@ func (r *ReconcileGrafanaDataSource) reconcile(reqLogger logr.Logger, cr *grafan
 }
 
 func (r *ReconcileGrafanaDataSource) reconcileDelete(reqLogger logr.Logger, cr *grafanav1alpha1.GrafanaDataSource) error {
-	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels)
+	matchedGrafs, err := common.MatchGrafana(r.context, r.client, reqLogger, cr.Namespace, cr.Labels, common.MatchByDataSource)
 	if err != nil {
 		reqLogger.Error(err, "matchGrafana failed.")
 		return err

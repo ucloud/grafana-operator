@@ -21,6 +21,13 @@ import (
 
 const DefaultClientTimeout = 5 * time.Second
 
+type MatchType string
+
+const (
+	MatchByDashboard  MatchType = "dashboard"
+	MatchByDataSource MatchType = "dataSource"
+)
+
 func matchesSelector(l map[string]string, s *metav1.LabelSelector) (bool, error) {
 	selector, err := metav1.LabelSelectorAsSelector(s)
 	if err != nil {
@@ -46,7 +53,7 @@ func MatchesSelectors(l map[string]string, s []*metav1.LabelSelector) (bool, err
 	return result, nil
 }
 
-func MatchGrafana(ctx context.Context, kubeclient client.Client, reqLogger logr.Logger, namespace string, label map[string]string) ([]*grafanav1alpha1.Grafana, error) {
+func MatchGrafana(ctx context.Context, kubeclient client.Client, reqLogger logr.Logger, namespace string, label map[string]string, t MatchType) ([]*grafanav1alpha1.Grafana, error) {
 	foundGrafanas := &grafanav1alpha1.GrafanaList{}
 	err := kubeclient.List(ctx, foundGrafanas, client.InNamespace(namespace))
 	if err != nil {
@@ -55,7 +62,11 @@ func MatchGrafana(ctx context.Context, kubeclient client.Client, reqLogger logr.
 
 	var result []*grafanav1alpha1.Grafana
 	for _, item := range foundGrafanas.Items {
-		match, err := MatchesSelectors(label, item.Spec.DashboardLabelSelector)
+		s := item.Spec.DashboardLabelSelector
+		if t == MatchByDataSource {
+			s = item.Spec.DatasourceLabelSelector
+		}
+		match, err := MatchesSelectors(label, s)
 		if err != nil {
 			return nil, err
 		}
